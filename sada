@@ -1,0 +1,209 @@
+local scriptURL = 'https://sirius.menu/rayfield'
+
+local Rayfield = loadstring(game:HttpGet(scriptURL))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Baddies Script❤️",
+    LoadingTitle = "Example Hub",
+    LoadingSubtitle = "by nicollas",
+    Theme = "Ocean",
+    ConfigurationSaving = { Enabled = false, FileName = "FirstScript!" },
+    Discord = { Enabled = false, Invite = "noinvitelink", RememberJoins = true },
+    KeySystem = false,
+    KeySettings = { Title = "Untitled", Subtitle = "Key System", Note = "No method of obtaining the key is provided", FileName = "Key", SaveKey = true, Key = {"Hello"} }
+})
+
+local MainTab = Window:CreateTab("🏡Home")
+local SecondTab = Window:CreateTab("🗂️Scripts")
+local ThirdTab = Window:CreateTab("Local Players")
+
+Rayfield:Notify({ Title = "You executed the Test Script!", Content = "Enjoy!", Duration = 9.5 })
+
+local RunService = game:GetService("RunService")
+local tpwalking, tpWalkSpeed = false, 10
+
+MainTab:CreateToggle({
+     Name = "TPwalk", CurrentValue = false, Flag = "TPWalkToggle",
+     Callback = function(Value)
+          tpwalking = Value
+          if not Value then return end
+          local hb, chr, hum = RunService.Heartbeat, game.Players.LocalPlayer.Character, game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
+          while tpwalking and chr and hum and hum.Parent do
+                local delta = hb:Wait()
+                if hum.MoveDirection.Magnitude > 0 then
+                     chr:TranslateBy(hum.MoveDirection * delta * tpWalkSpeed)
+                end
+          end
+     end
+})
+
+MainTab:CreateSlider({
+     Name = "TPwalk Speed", Range = {0, 300}, Increment = 1, Suffix = "Speed", CurrentValue = 10, Flag = "TPWalkSpeedSlider",
+     Callback = function(Value) tpWalkSpeed = Value end
+})
+
+MainTab:CreateToggle({
+     Name = "Infinite Jump", CurrentValue = false, Flag = "Infinite Jump",
+     Callback = function(Value)
+          local InfiniteJumpEnabled = Value
+          if InfiniteJumpEnabled then
+                connection = game:GetService("UserInputService").JumpRequest:Connect(function()
+                     if InfiniteJumpEnabled then
+                          game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+                     end
+                end)
+          else
+                if connection then connection:Disconnect() connection = nil end
+          end
+     end
+})
+
+local hitbox, hitboxSize, originalSizes, originalTransparencies = false, 10, {}, {}
+
+local function updateHitboxSize()
+     for _, player in ipairs(game.Players:GetPlayers()) do
+          if player ~= game.Players.LocalPlayer then
+                local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if rootPart then
+                     rootPart.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
+                     rootPart.Transparency = 0.5
+                     rootPart.CanCollide = false
+                end
+          end
+     end
+end
+
+MainTab:CreateToggle({
+     Name = "Hitbox", CurrentValue = false, Flag = "HitboxToggle",
+     Callback = function(Value)
+          hitbox = Value
+          if hitbox then
+                for _, player in ipairs(game.Players:GetPlayers()) do
+                     if player ~= game.Players.LocalPlayer then
+                          local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                          if rootPart and not originalSizes[player] then
+                                originalSizes[player] = rootPart.Size
+                                originalTransparencies[player] = rootPart.Transparency
+                          end
+                     end
+                end
+                updateHitboxSize()
+          else
+                for player, size in pairs(originalSizes) do
+                     local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                     if rootPart then
+                          rootPart.Size = size or Vector3.new(2, 2, 1)
+                          rootPart.Transparency = originalTransparencies[player] or 0
+                          originalSizes[player], originalTransparencies[player] = nil, nil
+                     end
+                end
+          end
+     end
+})
+
+RunService.Heartbeat:Connect(function() if hitbox then updateHitboxSize() end end)
+
+MainTab:CreateSlider({
+     Name = "Hitbox Size", Range = {0, 300}, Increment = 1, Suffix = "Size", CurrentValue = 10, Flag = "HitboxSizeSlider",
+     Callback = function(Value)
+          hitboxSize = Value
+          if hitbox then updateHitboxSize() end
+     end
+})
+
+SecondTab:CreateButton({
+     Name = "Baddies Target Gui",
+     Callback = function()
+          getgenv().Version = "new"
+          loadstring(game:HttpGet("https://raw.githubusercontent.com/rrixh/uwuware/refs/heads/main/games/BADDIES💅🏽v2-NEWui", true))()
+     end
+})
+
+local function teleportToPlayer(player)
+     local rootPart, targetRootPart = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+     if rootPart and targetRootPart then rootPart.CFrame = targetRootPart.CFrame end
+end
+
+local playerButtons = {}
+
+local function createPlayerButton(player)
+     playerButtons[player] = ThirdTab:CreateButton({
+          Name = "Teleport to " .. player.Name,
+          Callback = function()
+                if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                     teleportToPlayer(player)
+                else
+                     print("Player's character or HumanoidRootPart not found.")
+                end
+          end
+     })
+end
+
+for _, player in ipairs(game.Players:GetPlayers()) do
+     if player ~= game.Players.LocalPlayer then createPlayerButton(player) end
+end
+
+game.Players.PlayerAdded:Connect(function(player) if player ~= game.Players.LocalPlayer then createPlayerButton(player) end end)
+game.Players.PlayerRemoving:Connect(function(player)
+     if playerButtons[player] then
+          if playerButtons[player].Remove then playerButtons[player]:Remove() elseif playerButtons[player].Destroy then playerButtons[player]:Destroy() end
+          playerButtons[player] = nil
+     end
+end)
+
+local espEnabled = false
+
+local function createESP(player)
+     local BillboardGui = Instance.new("BillboardGui", player.Character)
+     BillboardGui.Name = "ESP"
+     BillboardGui.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
+     BillboardGui.Size = UDim2.new(0, 180, 0, 50)
+     BillboardGui.StudsOffset = Vector3.new(0, 3, 0)
+     BillboardGui.AlwaysOnTop = true
+
+     local TextLabel = Instance.new("TextLabel", BillboardGui)
+     TextLabel.Size = UDim2.new(1, 0, 1, 0)
+     TextLabel.BackgroundTransparency = 1
+     TextLabel.Text = player.DisplayName
+     TextLabel.TextColor3 = Color3.new(1, 0, 0)
+     TextLabel.TextStrokeTransparency = 0.5
+     TextLabel.TextScaled = true
+end
+
+local function removeESP(player)
+     if player.Character and player.Character:FindFirstChild("ESP") then player.Character:FindFirstChild("ESP"):Destroy() end
+end
+
+MainTab:CreateToggle({
+     Name = "ESP", CurrentValue = false, Flag = "ESPToggle",
+     Callback = function(Value)
+          espEnabled = Value
+          if espEnabled then
+                for _, player in ipairs(game.Players:GetPlayers()) do
+                     if player ~= game.Players.LocalPlayer and player.Character then createESP(player) end
+                end
+          else
+                for _, player in ipairs(game.Players:GetPlayers()) do
+                     if player ~= game.Players.LocalPlayer then removeESP(player) end
+                end
+          end
+     end
+})
+
+game.Players.PlayerAdded:Connect(function(player)
+     if espEnabled and player ~= game.Players.LocalPlayer then
+          player.CharacterAdded:Connect(function() createESP(player) end)
+     end
+end)
+
+game.Players.PlayerRemoving:Connect(function(player) if player ~= game.Players.LocalPlayer then removeESP(player) end end)
+
+-- Rejoin Button
+MainTab:CreateButton({
+     Name = "Rejoin",
+     Callback = function()
+          game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId)
+          wait(5) -- Wait for 5 seconds to ensure the player has rejoined
+          loadstring(game:HttpGet(loadstring(game:HttpGet('https://raw.githubusercontent.com/Nicolas-creat/Four/refs/heads/main/Four'))()))() -- Reload the script
+     end
+})
