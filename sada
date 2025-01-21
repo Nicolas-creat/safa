@@ -157,7 +157,7 @@ local function createESP(player)
      local BillboardGui = Instance.new("BillboardGui", player.Character)
      BillboardGui.Name = "ESP"
      BillboardGui.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
-     BillboardGui.Size = UDim2.new(0, 180, 0, 50)
+     BillboardGui.Size = UDim2.new(0, 150, 0, 50)
      BillboardGui.StudsOffset = Vector3.new(0, 3, 0)
      BillboardGui.AlwaysOnTop = true
 
@@ -197,6 +197,13 @@ game.Players.PlayerAdded:Connect(function(player)
 end)
 
 game.Players.PlayerRemoving:Connect(function(player) if player ~= game.Players.LocalPlayer then removeESP(player) end end)
+
+local Button = MainTab:CreateButton({
+    Name = "Nicolas Is The Best",
+    Callback = function()
+        Rayfield:Notify({ Title = "You Clicked!", Content = "Nicolas is really the best!", Duration = 5 })
+    end,
+ })
 
 -- Rejoin Button
 MainTab:CreateButton({
