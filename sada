@@ -111,14 +111,6 @@ MainTab:CreateSlider({
      end
 })
 
-SecondTab:CreateButton({
-     Name = "Baddies Target Gui",
-     Callback = function()
-          getgenv().Version = "new"
-          loadstring(game:HttpGet("https://raw.githubusercontent.com/rrixh/uwuware/refs/heads/main/games/BADDIES💅🏽v2-NEWui", true))()
-     end
-})
-
 local function teleportToPlayer(player)
      local rootPart, targetRootPart = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart"), player.Character and player.Character:FindFirstChild("HumanoidRootPart")
      if rootPart and targetRootPart then rootPart.CFrame = targetRootPart.CFrame end
@@ -214,3 +206,64 @@ MainTab:CreateButton({
           loadstring(game:HttpGet(loadstring(game:HttpGet('https://raw.githubusercontent.com/Nicolas-creat/Four/refs/heads/main/Four'))()))() -- Reload the script
      end
 })
+
+local function teleportPlayerInFront(player)
+    local localPlayer = game.Players.LocalPlayer
+    local rootPart = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+    local targetRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if rootPart and targetRootPart then
+        local offset = rootPart.CFrame.LookVector * 5 -- Adjust the distance as needed
+        targetRootPart.CFrame = rootPart.CFrame + offset
+        targetRootPart.Anchored = true -- Anchor the target player's HumanoidRootPart to prevent movement
+    end
+end
+
+SecondTab:CreateToggle({
+    Name = "Target Someone",
+    CurrentValue = false,
+    Flag = "Bring Player",
+    Callback = function(Value)
+        targetEnabled = Value
+        if targetEnabled and targetPlayerName ~= "" then
+            targetPlayer = game.Players:FindFirstChild(targetPlayerName)
+            if targetPlayer then
+                teleportPlayerInFront(targetPlayer)
+            else
+                print("Player not found.")
+            end
+        else
+            if targetPlayer then
+                targetPlayer.Character.HumanoidRootPart.Anchored = false
+            end
+            targetPlayer = nil
+        end
+    end
+})
+
+SecondTab:CreateInput({
+    Name = "Player Name",
+    Flag = "TargetPlayerName",
+    PlaceholderText = "Enter player name...",
+    Callback = function(Value)
+        targetPlayerName = Value
+        if targetEnabled and targetPlayerName ~= "" then
+            targetPlayer = game.Players:FindFirstChild(targetPlayerName)
+            if targetPlayer then
+                teleportPlayerInFront(targetPlayer)
+            else
+                print("Player not found.")
+            end
+        else
+            if targetPlayer then
+                targetPlayer.Character.HumanoidRootPart.Anchored = false
+            end
+            targetPlayer = nil
+        end
+    end
+})
+
+RunService.Heartbeat:Connect(function()
+    if targetEnabled and targetPlayer then
+        teleportPlayerInFront(targetPlayer)
+    end
+end)
