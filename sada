@@ -128,7 +128,7 @@ local playerButtons = {}
 
 local function createPlayerButton(player)
      playerButtons[player] = ThirdTab:CreateButton({
-          Name = "Teleport to " .. player.Name,
+          Name = "Teleport to " .. player.DisplayName .. " (" .. player.Name .. ")",
           Callback = function()
                 if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                      teleportToPlayer(player)
