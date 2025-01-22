@@ -209,7 +209,7 @@ MainTab:CreateButton({
 
 local function findPlayerByName(name)
     for _, player in ipairs(game.Players:GetPlayers()) do
-        if player.Name:lower() == name:lower() or player.DisplayName:lower() == name:lower() then
+        if player.Name:lower():find(name:lower()) or player.DisplayName:lower():find(name:lower()) then
             return player
         end
     end
