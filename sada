@@ -276,3 +276,59 @@ RunService.Heartbeat:Connect(function()
         teleportPlayerInFront(targetPlayer)
     end
 end)
+
+-- Server Hop Button
+local Button = MainTab:CreateButton({
+     Name = "Server Hop",
+     Callback = function()
+          local TeleportService = game:GetService("TeleportService")
+          local PlaceId = game.PlaceId
+          local servers = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")).data
+          for _, server in ipairs(servers) do
+               if server.playing < server.maxPlayers then
+                    TeleportService:TeleportToPlaceInstance(PlaceId, server.id)
+                    break
+               end
+          end
+     end
+})
+
+local function teleportPlayerInFront(player)
+     local localPlayer = game.Players.LocalPlayer
+     local rootPart = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+     local targetRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+     if rootPart and targetRootPart then
+          local offset = rootPart.CFrame.LookVector * 5 -- Adjust the distance as needed
+          targetRootPart.CFrame = rootPart.CFrame + offset
+          targetRootPart.Anchored = true -- Anchor the target player's HumanoidRootPart to prevent movement
+     end
+end
+
+RunService.Heartbeat:Connect(function()
+     if targetEnabled and targetPlayer then
+          teleportPlayerInFront(targetPlayer)
+     end
+end)
+
+-- Target Everyone
+local Toggle = SecondTab:CreateToggle({
+     Name = "Target Everyone",
+     CurrentValue = false,
+     Flag = "TargetEveryone",
+     Callback = function(Value)
+          targetEveryoneEnabled = Value
+          if targetEveryoneEnabled then
+               for _, player in ipairs(game.Players:GetPlayers()) do
+                    if player ~= game.Players.LocalPlayer then
+                         teleportPlayerInFront(player)
+                    end
+               end
+          else
+               for _, player in ipairs(game.Players:GetPlayers()) do
+                    if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                         player.Character.HumanoidRootPart.Anchored = false
+                    end
+               end
+          end
+     end,
+})
