@@ -3,7 +3,7 @@ local scriptURL = 'https://sirius.menu/rayfield'
 local Rayfield = loadstring(game:HttpGet(scriptURL))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Baddies Script❤️",
+    Name = "Baddies Script by nicollas",
     LoadingTitle = "Example Hub",
     LoadingSubtitle = "by nicollas",
     Theme = "Ocean",
